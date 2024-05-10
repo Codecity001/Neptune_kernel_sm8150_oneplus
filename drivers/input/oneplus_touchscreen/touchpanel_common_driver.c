@@ -741,9 +741,6 @@ static inline void tp_work_func(struct touchpanel_data *ts)
 	if (cur_event == 0x00)
 		return;
 
-	pm_qos_update_request(&ts->pm_touch_req, 100);
-	pm_qos_update_request(&ts->pm_i2c_req, 100);
-
 	/*
 	 *  trigger_reason:this callback determine which trigger reason should be
 	 *  The value returned has some policy!
@@ -769,9 +766,6 @@ static inline void tp_work_func(struct touchpanel_data *ts)
 	} else {
 		TPD_DEBUG("unknown irq trigger reason\n");
 	}
-
-	pm_qos_update_request(&ts->pm_i2c_req, PM_QOS_DEFAULT_VALUE);
-	pm_qos_update_request(&ts->pm_touch_req, PM_QOS_DEFAULT_VALUE);
 }
 
 static void tp_work_func_unlock(struct touchpanel_data *ts)
@@ -2888,9 +2882,6 @@ static int tp_register_irq_func(struct touchpanel_data *ts)
 	return 0;
 
 err_irq:
-	pm_qos_remove_request(&ts->pm_touch_req);
-	pm_qos_remove_request(&ts->pm_i2c_req);
-
 	return ret;
 }
 
