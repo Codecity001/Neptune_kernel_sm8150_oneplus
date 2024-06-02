@@ -22,11 +22,10 @@ if [ "$(git status | grep -Po 'v\d+(\.\d+)*' | head -n1)" ]; then
      git checkout main
 fi
 git pull
-if [ -z "${1-}" ]; then
-    git checkout "$(git describe --abbrev=0 --tags)"
-else
-    git checkout "$1"
-fi
+
+# Checkout to the specific version v0.9.5
+git checkout "v0.9.5"
+
 cd "$GKI_ROOT"
 
 echo "[+] GKI_ROOT: $GKI_ROOT"
