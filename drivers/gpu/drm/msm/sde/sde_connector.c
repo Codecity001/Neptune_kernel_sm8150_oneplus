@@ -662,6 +662,8 @@ static inline void sde_connector_pre_update_fod_hbm(struct sde_connector *c_conn
 			new_status_flags |= STATUS_FLAG_AOD;
 
 		was_hbm |= (new_status_flags & (STATUS_FLAG_HBM << STATUS_FLAG_HBM | (panel->bl_config.bl_level > BL_THRESHOLD) << STATUS_FLAG_BL_LEVEL));
+		if (new_status_flags & (1 << 2))
+			sde_encoder_wait_for_event(c_conn->encoder, MSM_ENC_VBLANK);
 	}
 
 	if (!(was_hbm & WAS_HBM_FLAG)) {
@@ -671,9 +673,9 @@ static inline void sde_connector_pre_update_fod_hbm(struct sde_connector *c_conn
 	}
 	gf_opticalfp_ready(blank);
 
-	if (status_flags && (panel->hw_type == DSI_PANEL_SAMSUNG_SOFEF03F_M))
+	if (status_flags && (panel->hw_type == DSI_PANEL_SAMSUNG_SOFEF03F_M)) {
 		sde_encoder_wait_for_event(c_conn->encoder, MSM_ENC_VBLANK);
-
+	}
 	dsi_panel_set_fod_ui(panel, new_status_flags);
 
 	if (!status_flags && !was_hbm)
