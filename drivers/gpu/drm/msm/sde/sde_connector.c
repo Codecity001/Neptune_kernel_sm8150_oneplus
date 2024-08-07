@@ -636,7 +636,8 @@ struct dsi_panel *sde_connector_panel(struct sde_connector *c_conn)
 #define STATUS_FLAG_HBM (1 << 3)
 #define STATUS_FLAG_AOD (1 << 2)
 #define BL_THRESHOLD 1023
-unsigned int was_hbm = 0;
+
+bool was_hbm;
 extern bool HBM_flag;
 extern void gf_opticalfp_ready(int);
 static inline void sde_connector_pre_update_fod_hbm(struct sde_connector *c_conn)
@@ -661,15 +662,19 @@ static inline void sde_connector_pre_update_fod_hbm(struct sde_connector *c_conn
 		if ((panel->cur_mode->timing.refresh_rate < 90 && !(new_status_flags & STATUS_FLAG_HBM)) || panel->aod_state)
 			new_status_flags |= STATUS_FLAG_AOD;
 
-		was_hbm |= (new_status_flags & (STATUS_FLAG_HBM << STATUS_FLAG_HBM | (panel->bl_config.bl_level > BL_THRESHOLD) << STATUS_FLAG_BL_LEVEL));
+		if (panel->bl_config.bl_level > BL_THRESHOLD || HBM_flag == true) 
+			was_hbm = true;
+		else
+			was_hbm = false;
+
 		if (new_status_flags & (1 << 2))
 			sde_encoder_wait_for_event(c_conn->encoder, MSM_ENC_VBLANK);
 	}
 
-	if (!(was_hbm & WAS_HBM_FLAG)) {
+        if (!was_hbm) {
 		dsi_panel_set_hbm_mode(panel, new_status_flags ? 5 : 0);
-	} else if ((was_hbm & WAS_HBM_FLAG) && !status_flags) {
-		was_hbm &= ~WAS_HBM_FLAG;
+	} else if (was_hbm && !status_flags) {
+		was_hbm = false;
 	}
 	gf_opticalfp_ready(blank);
 
