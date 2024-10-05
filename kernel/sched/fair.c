@@ -10398,16 +10398,6 @@ static bool update_sd_pick_busiest(struct lb_env *env,
 		goto asym_packing;
 
 	/*
-	 * Candidate sg has no more than one task per CPU and
-	 * has higher per-CPU capacity. Migrating tasks to less
-	 * capable CPUs may harm throughput. Maximize throughput,
-	 * power/energy consequences are not considered.
-	 */
-	if (sgs->sum_nr_running <= sgs->group_weight &&
-	    group_smaller_min_cpu_capacity(sds->local, sg))
-		return false;
-
-	/*
 	 * Candidate sg doesn't face any severe imbalance issues so
 	 * don't disturb unless the groups are of similar capacity
 	 * where balancing is more harmless.
@@ -11189,6 +11179,7 @@ asym_active_balance(struct lb_env *env)
 static inline bool
 voluntary_active_balance(struct lb_env *env)
 {
+	struct sched_domain *sd = env->sd;
 	if (asym_active_balance(env))
 		return 1;
 
